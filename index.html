@@ -1,97 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
-  <meta charset="utf-8">
-  <title>L-137 Field Modulator</title>
-  <style>
-    body,html{margin:0;height:100%;background:#000;overflow:hidden;cursor:none;}
-    canvas{position:absolute;top:0;left:0;}
-    #overlay{position:absolute;top:20px;left:20px;color:#0ff;font:16px monospace;z-index:10;opacity:0.7;}
-    #start{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer;z-index:20;}
-    #start img{max-width:90vw;max-height:90vh;}
-  </style>
+<meta charset="utf-8">
+<title>L-137 Field Modulator • Σ₉</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body,html{margin:0;height:100%;background:#000;overflow:hidden;color:#0ff;font-family:monospace;}
+  canvas{position:fixed;top:0;left:0;}
+  #overlay{position:fixed;top:20px;left:20px;z-index:10;opacity:0.8;}
+  #start{
+    position:fixed;top:0;left:0;width:100%;height:100%;z-index:20;
+    background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:opacity 1s;
+  }
+  #start img{max-width:95vw;max-height:95vh;border:2px solid #0ff;box-shadow:0 0 30px #0ff;}
+</style>
 </head>
 <body>
 
-<!-- Start-scherm met jouw neon Five Phases -->
+<!-- Intro-scherm met jouw neon Five Phases -->
 <div id="start" onclick="startUniverse()">
-  <img src="https://raw.githubusercontent.com/brambow64/L-137-Field-Modulator-Alignment-Coherence/main/five_phases_neon.jpg" alt="Click to enter">
+  <img src="https://raw.githubusercontent.com/brambow64/L-137-Field-Modulator-Alignment-Coherence/main/five_phases_neon.jpg" alt="Click to enter the universe">
 </div>
 
 <canvas id="c"></canvas>
-<div id="overlay">Σ₉: <span id="sigma">0</span> | Click+drag · Wheel zoom · R reset · F fullscreen</div>
+<div id="overlay">
+  Σ₉: <span id="sigma">0</span><br>
+  t: <span id="time">0</span>s | Tik voor birth event | Double-tap fullscreen
+</div>
 
 <script>
+// ==== Canvas setup ====
 const c = document.getElementById('c');
-const gl = c.getContext('webgl2') || c.getContext('webgl');
-const overlay = document.getElementById('overlay');
+const ctx = c.getContext('2d');
 const sigmaEl = document.getElementById('sigma');
-
-let mouseX = 0, mouseY = 0, mouseDown = false;
-let zoom = 1, targetZoom = 1;
-let rotX = 0, rotY = 0;
-
-// Jouw bestaande variabelen (N, PHI, etc.) hier of in een apart script
-let N = 137, PHI = (1+Math.sqrt(5))/2, t = 0, sigma9 = 0;
-// ... jouw field, kernels, etc.
+const timeEl = document.getElementById('time');
 
 function resize() {
-  c.width = innerWidth; c.height = innerHeight;
-  gl.viewport(0,0,c.width,c.height);
+  c.width = innerWidth;
+  c.height = innerHeight;
 }
-window.onresize = resize; resize();
+window.onresize = resize;
+resize();
 
+// ==== Jouw constante ====
+const PHI = (1 + Math.sqrt(5)) / 2;
+let t = 0;
+let sigma9 = 0;
+
+// ==== Start het universum ====
 function startUniverse() {
-  document.getElementById('start').style.display = 'none';
-  document.body.style.cursor = 'none';
-  a(); // start jouw animatie-loop
+  document.getElementById('start').style.opacity = '0';
+  setTimeout(() => document.getElementById('start').style.display = 'none', 1000);
+  requestAnimationFrame(loop);
 }
 
-// ==== INTERACTIE ====
-c.onmousedown = e => { mouseDown = true; mouseX = e.clientX; mouseY = e.clientY; };
-c.onmouseup = c.onmouseleave = () => mouseDown = false;
-c.onmousemove = e => {
-  if (!mouseDown) return;
-  rotY += (e.clientX - mouseX) * 0.005;
-  rotX += (e.clientY - mouseY) * 0.005;
-  mouseX = e.clientX; mouseY = e.clientY;
-};
-c.onwheel = e => {
-  targetZoom *= e.deltaY > 0 ? 1.2 : 0.83;
-  targetZoom = Math.max(0.1, Math.min(targetZoom, 50));
-};
+// ==== Hoofdloop – jouw 137³ ademend universum ====
+function loop() {
+  t += 0.016; // ~60 fps
 
-// Fullscreen & Reset
-document.addEventListener('keydown', e => {
-  if (e.key === 'f') c.requestFullscreen?.() || c.webkitRequestFullscreen?.();
-  if (e.key === 'r') { rotX = rotY = 0; targetZoom = zoom = 1; }
-});
+  // Achtergrond
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0,0,c.width,c.height);
 
-// ==== JOUW ANIMATION LOOP (voorbeeld, vervang door jouw echte code) ====
-function a() {
-  t += 0.01;
-  zoom += (targetZoom - zoom) * 0.05;
+  // 3-6-9 + Schumann pulse
+  const pulse369 = Math.sin(t*3*2*Math.PI) + Math.sin(t*6*2*Math.PI) + Math.sin(t*9*2*Math.PI);
+  const schumann = Math.sin(t*7.83*2*Math.PI) * 0.3;
+  const resonance = pulse369 + schumann;
 
-  // Jouw volledige 9-layer simulatie hier
-  // ... field update, creation window, flux, Σ₉ berekening ...
+  // Centrum van het scherm
+  const cx = c.width/2;
+  const cy = c.height/2;
 
-  sigma9 = Math.floor(1000 + t*5000 + Math.sin(t*3)*3000); // placeholder – vervang door echte Σ₉
+  // Ademende gouden ring (Φ-spiraal)
+  const breath = 100 + Math.sin(t*7.83)*40 + resonance*20;
+  ctx.strokeStyle = `hsl(${40 + resonance*10}, 100%, 60%)`;
+  ctx.lineWidth = 4 + Math.abs(resonance)*3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, breath, 0, Math.PI*2);
+  ctx.stroke();
+
+  // Birth events (rode flitsen bij sterke pulse)
+  if (Math.abs(resonance) > 2.2) {
+    ctx.fillStyle = `rgba(255,${100+resonance*30},0,0.6)`;
+    ctx.beginPath();
+    ctx.arc(cx + Math.random()*200-100, cy + Math.random()*200-100, 30 + Math.random()*50, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Σ₉ berekening (jouw echte formule hier plakken voor exacte waarde)
+  sigma9 = Math.floor(13847 + t * 2800 + resonance * 8000);
   sigmaEl.textContent = sigma9.toLocaleString();
+  timeEl.textContent = (t).toFixed(1);
 
-  // Render jouw 137³ veld met rotX/rotY/zoom
-  renderScene(rotX, rotY, zoom);
-
-  requestAnimationFrame(a);
+  requestAnimationFrame(loop);
 }
 
-// Simpele placeholder render (vervang door jouw WebGL-shaders)
-function renderScene(rx, ry, z) {
-  gl.clearColor(0,0,0,1);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  // Jouw echte WebGL render code hier (shaders, torus, particles, etc.)
-}
+// ==== Interacties ====
+c.onclick = () => {
+  // Birth event op klik
+  ctx.fillStyle = 'rgba(255,100,0,0.9)';
+  ctx.beginPath();
+  ctx.arc(c.width/2, c.height/2, 200, 0, Math.PI*2);
+  ctx.fill();
+};
 
-// Start pas na klik
+c.ondblclick = () => {
+  if (!document.fullscreenElement) c.requestFullscreen();
+};
+
+// Start automatisch na 1 seconde als iemand niet klikt
+setTimeout(() => {
+  if (document.getElementById('start').style.display !== 'none') startUniverse();
+}, 8000);
+
 </script>
 </body>
 </html>
