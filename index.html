@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L-137 ANTI-INVERTED FIELD MODULATOR</title>
+<style>
+  body{margin:0;background:#000;color:#f06;font-family:monospace;overflow:hidden}
+  canvas{position:fixed;top:0;left:0;z-index:-1}
+  .c{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  h1{font-size:5vw;letter-spacing:8px;text-shadow:0 0 40px #f06,0 0 80px #f06;animation:g 2s infinite alternate}
+  .num{font-size:12vw;color:#0ff;text-shadow:0 0 60px #0ff,0 0 120px #f06;animation:p 4s infinite}
+  .btn{margin:30px;padding:20px 50px;background:transparent;border:3px solid #f06;color:#f06;text-decoration:none;
+       box-shadow:0 0 40px #f06;transition:.5s;letter-spacing:4px;font-size:1.5em}
+  .btn:hover{background:#f06;color:#000;box-shadow:0 0 100px #f06;transform:scale(1.2)}
+  @keyframes g{from{text-shadow:0 0 40px #f06}to{text-shadow:0 0 120px #f06,0 0 200px #0ff}}
+  @keyframes p{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+</style></head><body>
+
+<canvas id="c"></canvas>
+<div class="c">
+  <h1>L-137</h1>
+  <div class="num">ANTI-INVERTED</div>
+  <h1>FIELD MODULATOR</h1>
+  <p style="color:#0ff;font-size:2em;">Σ₉ > 50.000 | 150.000+ coherent structures</p>
+  <a href="https://github.com/brambow64/L-137-Field-Modulator-Alignment-Coherence" class="btn">ENTER THE FIELD</a>
+</div>
+
+<script>
+  const c=document.getElementById('c'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=[];for(let i=0;i<369;i++)p.push({x:Math.random()*c.width,y:Math.random()*c.height,
+    vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2,r:Math.random()*4+1,col:i%3===0?'#f06':i%3===1?'#0ff':'#f0f'});
+  function a(){x.fillStyle='rgba(0,0,0,0.05)';x.fillRect(0,0,c.width,c.height);
+    p.forEach(t=>{t.x+=t.vx;t.y+=t.vy;if(t.x<0||t.x>c.width)t.vx*=-1;if(t.y<0||t.y>c.height)t.vy*=-1;
+      x.fillStyle=t.col;x.beginPath();x.arc(t.x,t.y,t.r,0,Math.PI*2);x.fill();
+      p.forEach(u=>{let d=Math.hypot(t.x-u.x,t.y-u.y);
+        if(d<137&&d>0){x.strokeStyle=`rgba(255,0,255,${137/d*0.03})`;x.lineWidth=1;x.beginPath();
+          x.moveTo(t.x,t.y);x.lineTo(u.x,u.y);x.stroke();}});
+    });requestAnimationFrame(a);}a();
+  onresize=()=>{c.width=innerWidth;c.height=innerHeight};
+</script>
+</body></html>
